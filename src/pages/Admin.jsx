@@ -28,16 +28,17 @@ const Admin = () => {
     return (
         <div className="min-h-screen bg-background">
             {/* Header */}
-            <div className="bg-gradient-to-r from-primary to-secondary text-primary-foreground p-6 shadow-lg">
-                <div className="container mx-auto flex justify-between items-center">
+            <div className="bg-gradient-to-r from-primary to-secondary text-primary-foreground p-4 md:p-6 shadow-lg">
+                <div className="container mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold">Portfolio Admin</h1>
-                        <p className="text-sm opacity-90 mt-1">Welcome, {user?.username}</p>
+                        <h1 className="text-2xl md:text-3xl font-bold">Portfolio Admin</h1>
+                        <p className="text-xs md:text-sm opacity-90 mt-1">Welcome, {user?.username}</p>
                     </div>
                     <Button
                         onClick={handleLogout}
                         variant="outline"
-                        className="text-primary-foreground border-primary-foreground hover:bg-primary-foreground hover:text-primary"
+                        size="sm"
+                        className="text-primary-foreground border-primary-foreground hover:bg-primary-foreground hover:text-primary w-full sm:w-auto"
                     >
                         <LogOut className="w-4 h-4 mr-2" />
                         Logout
@@ -46,17 +47,17 @@ const Admin = () => {
             </div>
 
             {/* Content */}
-            <div className="container mx-auto p-6">
+            <div className="container mx-auto p-4 md:p-6">
                 <Tabs defaultValue="profile" className="w-full">
-                    <TabsList className="grid w-full grid-cols-8 mb-6">
-                        <TabsTrigger value="resume">Resume</TabsTrigger>
-                        <TabsTrigger value="profile">Profile</TabsTrigger>
-                        <TabsTrigger value="projects">Projects ({projects.length})</TabsTrigger>
-                        <TabsTrigger value="internships">Internships ({internships.length})</TabsTrigger>
-                        <TabsTrigger value="skills">Skills</TabsTrigger>
-                        <TabsTrigger value="achievements">Achievements ({achievements.length})</TabsTrigger>
-                        <TabsTrigger value="platforms">Platforms ({codingPlatforms.length})</TabsTrigger>
-                        <TabsTrigger value="social">Social Links ({socialLinks.length})</TabsTrigger>
+                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 mb-6 h-auto">
+                        <TabsTrigger value="resume" className="text-xs sm:text-sm">Resume</TabsTrigger>
+                        <TabsTrigger value="profile" className="text-xs sm:text-sm">Profile</TabsTrigger>
+                        <TabsTrigger value="projects" className="text-xs sm:text-sm">Projects ({projects.length})</TabsTrigger>
+                        <TabsTrigger value="internships" className="text-xs sm:text-sm">Internships ({internships.length})</TabsTrigger>
+                        <TabsTrigger value="skills" className="text-xs sm:text-sm">Skills</TabsTrigger>
+                        <TabsTrigger value="achievements" className="text-xs sm:text-sm">Achievements ({achievements.length})</TabsTrigger>
+                        <TabsTrigger value="platforms" className="text-xs sm:text-sm">Platforms ({codingPlatforms.length})</TabsTrigger>
+                        <TabsTrigger value="social" className="text-xs sm:text-sm">Social ({socialLinks.length})</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="resume">
