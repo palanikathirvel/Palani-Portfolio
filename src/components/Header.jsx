@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Menu, X, LogIn, Sun, Moon, Edit2, Code2 } from "lucide-react";
+import { Menu, X, LogIn, Sun, Moon, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button.jsx";
 import { useTheme } from "@/contexts/ThemeContext.jsx";
 import { useAuth } from "@/contexts/AuthContext.jsx";
@@ -83,7 +83,7 @@ const Header = () => {
         <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-background/80 border-b border-border/50">
             <div className="container mx-auto px-4 py-4">
                 <div className="flex justify-between items-center">
-                    {/* Logo - PK Icon */}
+                    {/* Logo - Portfolio */}
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -93,8 +93,8 @@ const Header = () => {
                             onClick={() => navigate("/")}
                             className="flex items-center gap-2 hover:scale-105 transition-transform"
                         >
-                            <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center shadow-lg">
-                                <Code2 className="w-6 h-6 text-white" />
+                            <div className="px-4 py-2 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center shadow-lg">
+                                <span className="text-base font-bold text-white">Portfolio</span>
                             </div>
                             <span className="text-lg font-display font-bold gradient-text hidden sm:inline">
                                 {profile.name.split(" ")[0]}
