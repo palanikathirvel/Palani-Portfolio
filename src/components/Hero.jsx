@@ -9,7 +9,7 @@ import { useData } from "@/contexts/DataContext.jsx";
 const Hero = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const { profile, resume, projects, skills, internships } = useData();
+  const { profile = {}, resume = '', projects = [], skills = [], internships = [] } = useData();
 
   const handleDownloadResume = () => {
     if (resume) {
@@ -59,9 +59,9 @@ const Hero = () => {
               transition={{ delay: 0.3 }}
             >
               <h1 className="text-5xl md:text-7xl font-display font-bold mb-4 leading-tight">
-                Hi, I'm <span className="gradient-text">{profile.name.split(" ")[0]}</span>
+                Hi, I'm <span className="gradient-text">{(profile?.name || '').split(" ")[0]}</span>
               </h1>
-              <p className="text-xl text-muted-foreground mb-2">{profile.description}</p>
+              <p className="text-xl text-muted-foreground mb-2">{profile?.description || ''}</p>
             </motion.div>
 
             {/* CTA Buttons */}
@@ -143,16 +143,16 @@ const Hero = () => {
                 )}
 
                 <div className="text-center">
-                  <h2 className="text-2xl font-display font-bold mb-2">{profile.name}</h2>
-                  <p className="text-muted-foreground">{profile.description}</p>
+                  <h2 className="text-2xl font-display font-bold mb-2">{profile?.name || 'Your Name'}</h2>
+                  <p className="text-muted-foreground">{profile?.description || 'Your Description'}</p>
                 </div>
 
                 {/* Stats */}
                 <div className="w-full grid grid-cols-3 gap-4 pt-4 border-t border-border/50">
                   {[
-                    { label: "Projects", value: projects.length },
-                    { label: "Internships", value: internships.length },
-                    { label: "Skills", value: skills.reduce((acc, s) => acc + s.skills.length, 0) },
+                    { label: "Projects", value: Array.isArray(projects) ? projects.length : 0 },
+                    { label: "Internships", value: Array.isArray(internships) ? internships.length : 0 },
+                    { label: "Skills", value: Array.isArray(skills) && skills.length > 0 ? skills.reduce((acc, s) => acc + (Array.isArray(s.skills) ? s.skills.length : 0), 0) : 0 },
                   ].map((stat, i) => (
                     <div key={i} className="text-center">
                       <p className="text-lg font-bold text-primary">{stat.value}+</p>

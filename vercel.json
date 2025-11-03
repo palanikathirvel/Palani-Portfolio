@@ -3,17 +3,19 @@
     "builds": [
         {
             "src": "server.js",
-            "use": "@vercel/node"
+            "use": "@vercel/node",
+            "config": {
+                "includeFiles": "server/**"
+            }
         }
     ],
-    "routes": [
+    "rewrites": [
         {
-            "src": "/(.*)",
-            "dest": "server.js"
+            "source": "/(.*)",
+            "destination": "/server.js"
         }
     ],
     "env": {
-        "MONGODB_URI": "@MONGODB_URI",
         "NODE_ENV": "production"
     }
 }

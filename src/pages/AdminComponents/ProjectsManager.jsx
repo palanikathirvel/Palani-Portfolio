@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card.jsx";
 import { Trash2, Edit2, Plus } from "lucide-react";
 
 const ProjectsManager = () => {
-    const { projects, addProject, updateProject, deleteProject } = useData();
+    const { projects = [], addProject, updateProject, deleteProject } = useData();
     const [isAdding, setIsAdding] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
@@ -47,14 +47,14 @@ const ProjectsManager = () => {
     };
 
     const handleEditProject = (id) => {
-        const project = projects.find((p) => p.id === id);
+        const project = projects.find((p) => p.id === id || p._id === id);
         if (project) {
             setFormData({
                 title: project.title,
                 description: project.description,
-                tech: project.tech.join(", "),
-                github: project.github,
-                demo: project.demo,
+                tech: Array.isArray(project.tech) ? project.tech.join(", ") : "",
+                github: project.github || "",
+                demo: project.demo || "",
             });
             setEditingId(id);
         }
@@ -173,17 +173,17 @@ const ProjectsManager = () => {
             )}
 
             <div className="grid gap-4">
-                {projects.length === 0 ? (
+                {!Array.isArray(projects) || projects.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">No projects yet. Add your first project!</div>
                 ) : (
                     projects.map((project) => (
-                        <Card key={project.id} className="p-6">
+                        <Card key={project._id || project.id} className="p-6">
                             <div className="flex justify-between items-start">
                                 <div className="flex-1">
                                     <h3 className="text-xl font-bold mb-2">{project.title}</h3>
                                     <p className="text-muted-foreground mb-3">{project.description}</p>
                                     <div className="flex flex-wrap gap-2 mb-3">
-                                        {project.tech.map((t, i) => (
+                                        {Array.isArray(project.tech) && project.tech.map((t, i) => (
                                             <span key={i} className="px-2 py-1 bg-muted text-xs rounded-full">
                                                 {t}
                                             </span>

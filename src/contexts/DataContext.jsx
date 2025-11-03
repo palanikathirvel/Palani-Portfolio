@@ -503,6 +503,7 @@ export const DataProvider = ({ children }) => {
             value={{
                 loading,
                 convertImageToBase64,
+                projects,
                 skills,
                 achievements,
                 codingPlatforms,

@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 
 const Projects = () => {
-  const { projects } = useData();
+  const { projects = [] } = useData();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -31,13 +31,13 @@ const Projects = () => {
             Featured <span className="gradient-text">Projects</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            {projects.length === 0
+            {Array.isArray(projects) && projects.length === 0
               ? "No projects yet. Login to add your first project!"
               : "A selection of my recent work showcasing innovation and technical expertise"}
           </p>
         </motion.div>
 
-        {projects.length === 0 ? (
+        {Array.isArray(projects) && projects.length === 0 ? (
           <div className="text-center py-12">
             {isAuthenticated && (
               <Button
@@ -53,7 +53,7 @@ const Projects = () => {
           <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
             {projects.map((project, index) => (
               <motion.div
-                key={project.id}
+                key={project._id || project.id || index}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -76,7 +76,7 @@ const Projects = () => {
 
                     {/* Tech stack */}
                     <div className="flex flex-wrap gap-2 mb-6">
-                      {project.tech.map((tech, i) => (
+                      {project.tech && project.tech.length > 0 && project.tech.map((tech, i) => (
                         <span key={i} className="px-3 py-1 text-sm rounded-full bg-muted/50 text-foreground">
                           {tech}
                         </span>

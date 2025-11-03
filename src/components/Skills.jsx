@@ -63,7 +63,7 @@ const Skills = () => {
                                         <h3 className="text-xl font-display font-bold mb-4">{category.category}</h3>
 
                                         <div className="flex flex-wrap gap-2">
-                                            {category.skills.map((skill, i) => (
+                                            {category.skills && category.skills.length > 0 && category.skills.map((skill, i) => (
                                                 <span
                                                     key={i}
                                                     className="px-3 py-1 text-sm rounded-full bg-background/80 text-foreground border border-border/50"
