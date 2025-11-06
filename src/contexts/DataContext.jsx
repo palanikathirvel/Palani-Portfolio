@@ -2,7 +2,8 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 
 const DataContext = createContext();
 const API_URL = 'https://palani-portfolio-backend.vercel.app/api';
-const BUILD_VERSION = '1.0.1'; // Force cache refresh
+const BUILD_VERSION = '2.0.0'; // Force complete cache refresh
+console.log('API URL:', API_URL, 'Version:', BUILD_VERSION);
 
 export const DataProvider = ({ children }) => {
     const [projects, setProjects] = useState([]);
