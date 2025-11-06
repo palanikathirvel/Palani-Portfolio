@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 const DataContext = createContext();
-const API_URL = 'https://palani-portfolio-backend.vercel.app/api';
-const BUILD_VERSION = '2.0.0'; // Force complete cache refresh
+const API_URL = import.meta.env.VITE_API_URL || 'https://palani-portfolio-backend.vercel.app/api';
+const BUILD_VERSION = '2.0.1'; // Updated API URL
 console.log('API URL:', API_URL, 'Version:', BUILD_VERSION);
 
 export const DataProvider = ({ children }) => {
