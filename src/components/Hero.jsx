@@ -5,11 +5,12 @@ import ParticlesBackground from "./ParticlesBackground.jsx";
 import { useAuth } from "@/contexts/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 import { useData } from "@/contexts/DataContext.jsx";
+import { SiGithub, SiLinkedin, SiX, SiInstagram, SiYoutube } from "react-icons/si";
 
 const Hero = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const { profile, resume, projects, skills, internships } = useData();
+  const { profile = {}, resume = '', projects = [], skills = [], internships = [], socialLinks = [], codingPlatforms = [] } = useData();
 
   const handleDownloadResume = () => {
     if (resume) {
@@ -18,6 +19,14 @@ const Hero = () => {
       link.download = "resume.pdf";
       link.click();
     }
+  };
+
+  const ICON_MAP = {
+    github: SiGithub,
+    linkedin: SiLinkedin,
+    twitter: SiX,
+    instagram: SiInstagram,
+    youtube: SiYoutube,
   };
 
   return (
@@ -59,10 +68,47 @@ const Hero = () => {
               transition={{ delay: 0.3 }}
             >
               <h1 className="text-5xl md:text-7xl font-display font-bold mb-4 leading-tight">
-                Hi, I'm <span className="gradient-text">{profile.name.split(" ")[0]}</span>
+                Hi, I'm <span className="gradient-text">{(profile?.name || '').split(" ")[0]}</span>
               </h1>
-              <p className="text-xl text-muted-foreground mb-2">{profile.description}</p>
+              <p className="text-xl text-muted-foreground mb-2">{profile?.description || ''}</p>
             </motion.div>
+
+            {/* Social Links - Stylish Display */}
+            {socialLinks.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="flex flex-wrap gap-3"
+              >
+                {socialLinks.map((link, index) => {
+                  // Use platform field if available, otherwise use name
+                  const platformName = link.platform || link.name;
+                  const Icon = ICON_MAP[platformName];
+                  // Use link field if available, otherwise use url
+                  const linkUrl = link.link || link.url;
+
+                  return (
+                    <motion.a
+                      key={link._id || link.id || index}
+                      href={linkUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      whileHover={{ y: -4, scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="p-3 rounded-full bg-background/80 border border-border/50 hover:border-primary/50 transition-all duration-300 group shadow-md hover:shadow-lg"
+                      aria-label={platformName}
+                    >
+                      {Icon ? (
+                        <Icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                      ) : (
+                        <div className="w-5 h-5 bg-muted-foreground rounded-full group-hover:bg-primary transition-colors" />
+                      )}
+                    </motion.a>
+                  );
+                })}
+              </motion.div>
+            )}
 
             {/* CTA Buttons */}
             <motion.div
@@ -148,11 +194,12 @@ const Hero = () => {
                 </div>
 
                 {/* Stats */}
-                <div className="w-full grid grid-cols-3 gap-4 pt-4 border-t border-border/50">
+                <div className="w-full grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-border/50">
                   {[
-                    { label: "Projects", value: projects.length },
-                    { label: "Internships", value: internships.length },
-                    { label: "Skills", value: skills.reduce((acc, s) => acc + s.skills.length, 0) },
+                    { label: "Projects", value: Array.isArray(projects) ? projects.length : 0 },
+                    { label: "Internships", value: Array.isArray(internships) ? internships.length : 0 },
+                    { label: "Skills", value: Array.isArray(skills) ? skills.length : 0 },
+                    { label: "Platforms", value: Array.isArray(codingPlatforms) ? codingPlatforms.length : 0 },
                   ].map((stat, i) => (
                     <div key={i} className="text-center">
                       <p className="text-lg font-bold text-primary">{stat.value}+</p>

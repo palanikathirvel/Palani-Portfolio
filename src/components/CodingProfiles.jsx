@@ -62,16 +62,19 @@ const CodingProfiles = () => {
                         )}
                     </div>
                 ) : (
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
                         {codingPlatforms.map((platform, index) => {
-                            const Icon = getIcon(platform.name);
-                            const color = getColor(platform.name);
+                            const platformName = (platform.name || platform.platform || "").toLowerCase();
+                            const platformCount = platform.count ?? platform.rating ?? 0;
+                            const platformLink = platform.link || platform.url || "";
+                            const Icon = getIcon(platformName);
+                            const color = getColor(platformName);
                             return (
                                 <motion.a
-                                    key={platform.id}
-                                    href={platform.link || "#"}
-                                    target={platform.link ? "_blank" : undefined}
-                                    rel={platform.link ? "noopener noreferrer" : undefined}
+                                    key={platform._id || platform.id || index}
+                                    href={platformLink || "#"}
+                                    target={platformLink ? "_blank" : undefined}
+                                    rel={platformLink ? "noopener noreferrer" : undefined}
                                     initial={{ opacity: 0, y: 30 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
@@ -89,12 +92,17 @@ const CodingProfiles = () => {
                                                 {Icon && <Icon className="w-8 h-8 text-white" />}
                                             </div>
 
-                                            <h3 className="text-xl font-display font-bold mb-2 capitalize">{platform.name}</h3>
+                                            <h3 className="text-xl font-display font-bold mb-2 capitalize">{platform.name || platform.platform}</h3>
 
-                                            <p className="text-lg font-semibold text-primary mb-3">{platform.count}+</p>
+                                            {/* Show count/rating */}
+                                            {platformCount > 0 && (
+                                                <p className="text-lg font-semibold text-primary mb-2">
+                                                    {platformCount}+ Programs
+                                                </p>
+                                            )}
 
                                             <div className="flex items-center justify-center gap-2 text-primary group-hover:gap-3 transition-all">
-                                                {platform.link && (
+                                                {platformLink && (
                                                     <>
                                                         <span className="text-sm font-medium">View Profile</span>
                                                         <ExternalLink className="w-4 h-4" />

@@ -20,6 +20,26 @@ export const DataProvider = ({ children }) => {
     const [resume, setResume] = useState("");
     const [loading, setLoading] = useState(true);
 
+    const normalizeProject = (project) => ({
+        ...project,
+        github: project.github || project.links?.github || "",
+        demo: project.demo || project.links?.live || project.links?.demo || "",
+        tech: project.tech || project.technologies || [],
+    });
+
+    const normalizePlatform = (platform) => ({
+        ...platform,
+        count: platform.count ?? platform.rating ?? 0,
+        link: platform.link || platform.url || "",
+        name: platform.name || platform.platform || "",
+    });
+
+    const normalizeSocialLink = (link) => ({
+        ...link,
+        platform: link.platform || link.name || "",
+        link: link.link || link.url || "",
+    });
+
     // Load data from MongoDB on mount
     useEffect(() => {
         const loadData = async () => {
@@ -39,10 +59,20 @@ export const DataProvider = ({ children }) => {
                 // Process projects
                 if (projectsRes.status === 'fulfilled' && projectsRes.value.ok) {
                     const data = await projectsRes.value.json();
-                    setProjects(data);
+                    // Map backend data structure to frontend expected structure
+                    const mappedProjects = data.map(project => ({
+                        ...project,
+                        github: project.links?.github || "",
+                        demo: project.links?.live || project.links?.demo || "",
+                        tech: project.technologies || []
+                    }));
+                    setProjects(mappedProjects);
                 } else {
                     const saved = localStorage.getItem("projects");
-                    if (saved) setProjects(JSON.parse(saved));
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        setProjects(Array.isArray(parsed) ? parsed.map(normalizeProject) : []);
+                    }
                 }
 
                 // Process skills
@@ -66,19 +96,38 @@ export const DataProvider = ({ children }) => {
                 // Process platforms
                 if (platformsRes.status === 'fulfilled' && platformsRes.value.ok) {
                     const data = await platformsRes.value.json();
-                    setCodingPlatforms(data);
+                    // Map backend data structure to frontend expected structure
+                    const mappedPlatforms = data.map(platform => ({
+                        ...platform,
+                        count: platform.count ?? platform.rating ?? 0,
+                        link: platform.link || platform.url || "",
+                        name: platform.name || platform.platform || "",
+                    }));
+                    setCodingPlatforms(mappedPlatforms);
                 } else {
                     const saved = localStorage.getItem("codingPlatforms");
-                    if (saved) setCodingPlatforms(JSON.parse(saved));
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        setCodingPlatforms(Array.isArray(parsed) ? parsed.map(normalizePlatform) : []);
+                    }
                 }
 
                 // Process social links
                 if (socialLinksRes.status === 'fulfilled' && socialLinksRes.value.ok) {
                     const data = await socialLinksRes.value.json();
-                    setSocialLinks(data);
+                    // Map backend data structure to frontend expected structure
+                    const mappedLinks = data.map(link => ({
+                        ...link,
+                        platform: link.platform || link.name || "",
+                        link: link.link || link.url || ""
+                    }));
+                    setSocialLinks(mappedLinks);
                 } else {
                     const saved = localStorage.getItem("socialLinks");
-                    if (saved) setSocialLinks(JSON.parse(saved));
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        setSocialLinks(Array.isArray(parsed) ? parsed.map(normalizeSocialLink) : []);
+                    }
                 }
 
                 // Process internships
@@ -105,15 +154,24 @@ export const DataProvider = ({ children }) => {
                 console.error('Error loading data:', error);
                 // Fallback to localStorage
                 const savedProjects = localStorage.getItem("projects");
-                if (savedProjects) setProjects(JSON.parse(savedProjects));
+                if (savedProjects) {
+                    const parsed = JSON.parse(savedProjects);
+                    setProjects(Array.isArray(parsed) ? parsed.map(normalizeProject) : []);
+                }
                 const savedSkills = localStorage.getItem("skills");
                 if (savedSkills) setSkills(JSON.parse(savedSkills));
                 const savedAchievements = localStorage.getItem("achievements");
                 if (savedAchievements) setAchievements(JSON.parse(savedAchievements));
                 const savedPlatforms = localStorage.getItem("codingPlatforms");
-                if (savedPlatforms) setCodingPlatforms(JSON.parse(savedPlatforms));
+                if (savedPlatforms) {
+                    const parsed = JSON.parse(savedPlatforms);
+                    setCodingPlatforms(Array.isArray(parsed) ? parsed.map(normalizePlatform) : []);
+                }
                 const savedLinks = localStorage.getItem("socialLinks");
-                if (savedLinks) setSocialLinks(JSON.parse(savedLinks));
+                if (savedLinks) {
+                    const parsed = JSON.parse(savedLinks);
+                    setSocialLinks(Array.isArray(parsed) ? parsed.map(normalizeSocialLink) : []);
+                }
                 const savedInternships = localStorage.getItem("internships");
                 if (savedInternships) setInternships(JSON.parse(savedInternships));
                 const savedProfile = localStorage.getItem("profile");
@@ -209,15 +267,35 @@ export const DataProvider = ({ children }) => {
     // Projects CRUD
     const addProject = async (project) => {
         try {
+            // Map frontend data structure to backend expected structure
+            const backendProject = {
+                ...project,
+                technologies: project.tech || [],
+                links: {
+                    github: project.github || "",
+                    live: project.demo || "",
+                    demo: project.demo || ""
+                }
+            };
+
             const response = await fetch(`${API_URL}/projects`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(project),
+                body: JSON.stringify(backendProject),
             });
             if (!response.ok) throw new Error('Failed to add project');
             const newProject = await response.json();
-            setProjects([...projects, newProject]);
-            return newProject;
+
+            // Map backend response to frontend expected structure
+            const mappedProject = {
+                ...newProject,
+                github: newProject.links?.github || "",
+                demo: newProject.links?.live || newProject.links?.demo || "",
+                tech: newProject.technologies || []
+            };
+
+            setProjects([...projects, mappedProject]);
+            return mappedProject;
         } catch (error) {
             console.error('Error adding project:', error);
             const newProject = { ...project, id: Date.now() };
@@ -228,14 +306,34 @@ export const DataProvider = ({ children }) => {
 
     const updateProject = async (id, updatedProject) => {
         try {
+            // Map frontend data structure to backend expected structure
+            const backendProject = {
+                ...updatedProject,
+                technologies: updatedProject.tech || [],
+                links: {
+                    github: updatedProject.github || "",
+                    live: updatedProject.demo || "",
+                    demo: updatedProject.demo || ""
+                }
+            };
+
             const response = await fetch(`${API_URL}/projects/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updatedProject),
+                body: JSON.stringify(backendProject),
             });
             if (!response.ok) throw new Error('Failed to update project');
             const updated = await response.json();
-            setProjects(projects.map((p) => (p._id === id || p.id === id ? updated : p)));
+
+            // Map backend response to frontend expected structure
+            const mappedProject = {
+                ...updated,
+                github: updated.links?.github || "",
+                demo: updated.links?.live || updated.links?.demo || "",
+                tech: updated.technologies || []
+            };
+
+            setProjects(projects.map((p) => (p._id === id || p.id === id ? mappedProject : p)));
         } catch (error) {
             console.error('Error updating project:', error);
             setProjects(projects.map((p) => (p.id === id ? { ...p, ...updatedProject } : p)));
@@ -356,15 +454,30 @@ export const DataProvider = ({ children }) => {
     // Coding Platforms CRUD
     const addCodingPlatform = async (platform) => {
         try {
+            // Map frontend data structure to backend expected structure
+            const backendPlatform = {
+                name: platform.name,
+                rating: parseInt(platform.count) || 0,
+                url: platform.link || ""
+            };
+
             const response = await fetch(`${API_URL}/platforms`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(platform),
+                body: JSON.stringify(backendPlatform),
             });
             if (!response.ok) throw new Error('Failed to add platform');
             const newPlatform = await response.json();
-            setCodingPlatforms([...codingPlatforms, newPlatform]);
-            return newPlatform;
+
+            // Map backend response to frontend expected structure
+            const mappedPlatform = {
+                ...newPlatform,
+                count: newPlatform.rating || 0,
+                link: newPlatform.url || ""
+            };
+
+            setCodingPlatforms([...codingPlatforms, mappedPlatform]);
+            return mappedPlatform;
         } catch (error) {
             console.error('Error adding platform:', error);
             const newPlatform = { ...platform, id: Date.now() };
@@ -375,14 +488,29 @@ export const DataProvider = ({ children }) => {
 
     const updateCodingPlatform = async (id, updatedPlatform) => {
         try {
+            // Map frontend data structure to backend expected structure
+            const backendPlatform = {
+                name: updatedPlatform.name,
+                rating: parseInt(updatedPlatform.count) || 0,
+                url: updatedPlatform.link || ""
+            };
+
             const response = await fetch(`${API_URL}/platforms/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updatedPlatform),
+                body: JSON.stringify(backendPlatform),
             });
             if (!response.ok) throw new Error('Failed to update platform');
             const updated = await response.json();
-            setCodingPlatforms(codingPlatforms.map((p) => (p._id === id || p.id === id ? updated : p)));
+
+            // Map backend response to frontend expected structure
+            const mappedPlatform = {
+                ...updated,
+                count: updated.rating || 0,
+                link: updated.url || ""
+            };
+
+            setCodingPlatforms(codingPlatforms.map((p) => (p._id === id || p.id === id ? mappedPlatform : p)));
         } catch (error) {
             console.error('Error updating platform:', error);
             setCodingPlatforms(codingPlatforms.map((p) => (p.id === id ? { ...p, ...updatedPlatform } : p)));
@@ -405,15 +533,29 @@ export const DataProvider = ({ children }) => {
     // Social Links CRUD
     const addSocialLink = async (link) => {
         try {
+            // Map frontend data structure to backend expected structure
+            const backendLink = {
+                name: link.platform || link.name,
+                url: link.link || ""
+            };
+
             const response = await fetch(`${API_URL}/social-links`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(link),
+                body: JSON.stringify(backendLink),
             });
             if (!response.ok) throw new Error('Failed to add social link');
             const newLink = await response.json();
-            setSocialLinks([...socialLinks, newLink]);
-            return newLink;
+
+            // Map backend response to frontend expected structure
+            const mappedLink = {
+                ...newLink,
+                platform: newLink.name || "",
+                link: newLink.url || ""
+            };
+
+            setSocialLinks([...socialLinks, mappedLink]);
+            return mappedLink;
         } catch (error) {
             console.error('Error adding social link:', error);
             const newLink = { ...link, id: Date.now() };
@@ -424,14 +566,28 @@ export const DataProvider = ({ children }) => {
 
     const updateSocialLink = async (id, updatedLink) => {
         try {
+            // Map frontend data structure to backend expected structure
+            const backendLink = {
+                name: updatedLink.platform || updatedLink.name,
+                url: updatedLink.link || ""
+            };
+
             const response = await fetch(`${API_URL}/social-links/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updatedLink),
+                body: JSON.stringify(backendLink),
             });
             if (!response.ok) throw new Error('Failed to update social link');
             const updated = await response.json();
-            setSocialLinks(socialLinks.map((l) => (l._id === id || l.id === id ? updated : l)));
+
+            // Map backend response to frontend expected structure
+            const mappedLink = {
+                ...updated,
+                platform: updated.name || "",
+                link: updated.url || ""
+            };
+
+            setSocialLinks(socialLinks.map((l) => (l._id === id || l.id === id ? mappedLink : l)));
         } catch (error) {
             console.error('Error updating social link:', error);
             setSocialLinks(socialLinks.map((l) => (l.id === id ? { ...l, ...updatedLink } : l)));
@@ -503,8 +659,7 @@ export const DataProvider = ({ children }) => {
     return (
         <DataContext.Provider
             value={{
-                loading,
-                convertImageToBase64,
+                projects,
                 skills,
                 achievements,
                 codingPlatforms,
@@ -512,6 +667,8 @@ export const DataProvider = ({ children }) => {
                 internships,
                 profile,
                 resume,
+                loading,
+                convertImageToBase64,
                 updateProfile,
                 updateResume,
                 addProject,
